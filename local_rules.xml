@@ -1,58 +1,8 @@
-!/bin/bash
-# Wazuh passe le chemin du fichier d'alerte en argument $1
-ALERT_FILE=$1
-WEBHOOK="https://discord.com/api/webhooks/1543790900583600159/3CucyZpTeuIZqcF0-wepnNzsBajh4OpT2NZ2cFxBNyQBq449gIXaZUmUC3jAoi2GdeoX"
-
-# Extraire la description de l'alerte
-DESC=$(grep -o '"description":"[^"]*"' "$ALERT_FILE" | head -1 | cut -d':' -f2- | tr -d '"')
-
-# Envoyer directement le message à Discord via curl
-curl -s -H "Content-Type: application/json" -d "{\"content\": \"🚨 **Wazuh SOC Alert** 🚨\n**Détail :** $DESC\"}" "$WEBHOOK" 
 
 
-#!/var/ossec/framework/python/bin/python3
-import sys
-import json
-import requests
-
-# Lecture du fichier d'alerte généré par Wazuh
-alert_file = open(sys.argv[1])
-alert_json = json.loads(alert_file.read())
-alert_file.close()
-
-# Extraction des données clés de l'alerte
-description = alert_json.get('rule', {}).get('description', 'Alerte non définie')
-level = alert_json.get('rule', {}).get('level', 0)
-agent = alert_json.get('agent', {}).get('name', 'Agent inconnu')
-
-# Lien Webhook Discord
-WEBHOOK_URL = "https://discord.com/api/webhooks/1543790900583600159/3CucyZpTeuIZqcF0-wepnNzsBajh4OpT2NZ2cFxBNyQBq449gIXaZUmUC3jAoi2GdeoX"
-
-# Formatage du message
-message_content = f"🚨 **ALERTE CRITIQUE SOC** 🚨\n**Gravité :** {level}\n**Machine cible :** {agent}\n**Détails de l'attaque :** {description}"
-
-payload = {
-    "content": message_content,
-    "username": "SOC Wazuh Bot"
-}
-
-# Envoi de la requête vers le salon Discord
-requests.post(WEBHOOK_URL, json=payload) 
-
-
-
-
-<!-- Local rules -->
-
-<!-- Modify it at your will. -->
-<!-- Copyright (C) 2015, Wazuh Inc. -->
-
-<!-- Example -->
 <group name="local,syslog,sshd,">
 
-  <!--
-  Dec 10 01:02:02 host sshd[1234]: Failed none for root from 1.1.1.1 port 1066 ssh2
-  -->
+ 
   <rule id="100001" level="5">
     <if_sid>5716</if_sid>
     <srcip>1.1.1.1</srcip>
